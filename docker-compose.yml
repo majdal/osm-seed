@@ -33,8 +33,8 @@ services:
       echo Sleep the replication for a while!;
       sleep 40;
       echo Creating the replication!;
-      ./import_osm.sh"
-    env_file: 
+      ./start.sh"
+    env_file:
       - ./.env
   db-backup-restore:
     image: openseed-db-backup-restore:v1
@@ -49,6 +49,24 @@ services:
       echo Sleep for a while!;
       sleep 20;
       echo Building backup!;
-      ./script.sh"
+      ./start.sh"
+    env_file: 
+      - ./.env
+  gl-tiles-server:
+    image: gl-tiles-server:v1
+    build: 
+      context: ./gl-tiles-server
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - web
+      - db
+    command: >
+      /bin/bash -c "
+      echo Sleep for a while!;
+      sleep 20;
+      echo Building backup!;
+      ./start.sh"
     env_file: 
       - ./.env
