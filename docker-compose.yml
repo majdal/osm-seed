@@ -6,11 +6,14 @@ services:
       context: ./openstreetmap-website
       dockerfile: Dockerfile
     ports:
-      - "80:80"
+      - "8001:80"
     env_file: 
       - ./.env
     depends_on:
       - db
+    networks: 
+      - web_network
+      - db_network
   db:
     image: openseed-db:v1
     build:
@@ -22,6 +25,8 @@ services:
       - ./postgres-data:/var/lib/postgresql/data
     env_file: 
       - ./.env
+    networks: 
+      - db_network
   replication:
     image: openseed-replication:v1
     build: 
@@ -66,3 +71,23 @@ services:
       - db
     env_file: 
       - ./.env
+    networks: 
+      - web_network
+  nginx: 
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    networks: 
+      - web_network
+      - db_network
+    depends_on: 
+      - web
+      - db
+      - id
+networks: 
+  web_network: 
+    driver: bridge
+  db_network: 
+    driver: bridge
