@@ -4,8 +4,8 @@ events {
 
 http {
     server {
-        listen 80;
-        server_name 127.0.0.1;
+        listen ${SERVER_PORT};
+        server_name ${SERVER_URL};
 
         location / {
             proxy_pass         http://web:80;
