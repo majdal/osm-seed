@@ -97,7 +97,7 @@ services:
     depends_on: 
       - web
       - db
-      - id
+      - id-editor
 networks: 
   web_network: 
     driver: bridge
