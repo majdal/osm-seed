@@ -6,7 +6,7 @@ services:
       context: ./openstreetmap-website
       dockerfile: Dockerfile
     ports:
-      - "8001:80"
+      - "80:80"
     env_file: 
       - ./.env
     depends_on:
