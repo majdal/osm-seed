@@ -59,10 +59,10 @@ services:
       ./start.sh"
     env_file: 
       - ./.env
-  id:
-    image: openseed-id-editor:v1
+  id-editor:
+    image: osmseed-id-editor:v1
     build: 
-      context: ./iD
+      context: ./id-editor
       dockerfile: Dockerfile
     expose:
       - "8080"
