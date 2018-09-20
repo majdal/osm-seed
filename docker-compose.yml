@@ -73,6 +73,24 @@ services:
       - ./.env
     networks: 
       - web_network
+  pebble:
+    image: letsencrypt/pebble:stable
+    command: pebble -config ./test/my-pebble-config.json
+    ports:
+      - 14000:14000
+    environment:
+      - PEBBLE_VA_NOSLEEP=1
+    volumes:
+      - ./my-pebble-config.json:/test/my-pebble-config.json
+  certbot: 
+    image: certbot/certbot
+    volumes:
+      - ./letsencrypt:/etc/letsencrypt
+      - ./letsencrypt/lib:/var/lib/letsencrypt
+    command:
+      certonly -n -m ${MAILER_USERNAME} --agree-tos --renew-by-default --standalone -d ${SERVER_URL}
+    depends_on: 
+      - pebble
   nginx: 
     build:
       context: ./nginx
