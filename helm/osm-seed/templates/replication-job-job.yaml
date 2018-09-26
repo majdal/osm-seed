@@ -1,14 +1,14 @@
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
-  name: {{ .Release.Name }}-osmosis
+  name: {{ .Release.Name }}-replication-job-job
   labels:
     app: {{ template "osm-seed.name" . }}
-    component: osmosis-job
+    component: replication-job-job
     environment: {{ .Values.environment }}
     release: {{ .Release.Name }}
 spec:
-  schedule: {{ quote .Values.osmmosis.schedule }}
+  schedule: {{ quote .Values.replicationJob.schedule }}
   successfulJobsHistoryLimit: 0
   failedJobsHistoryLimit: 0
   jobTemplate:
@@ -16,9 +16,16 @@ spec:
       template:
         spec:
           containers:
-          - name: {{ .Release.Name }}-osmosis
-            image: {{ .Values.osmmosis.image }}:{{ .Values.osmSeedVersion }}
+          - name: {{ .Release.Name }}-replication-job-job
+            image: {{ .Values.replicationJob.image }}:{{ .Values.osmSeedVersion }}
             command: ['./start.sh']
+            resources:
+              requests:
+                memory: {{ .Values.replicationJob.resources.requests.memory }}
+                cpu: {{ .Values.replicationJob.resources.requests.cpu }}
+              limits:
+                memory: {{ .Values.replicationJob.resources.limits.memory }}
+                cpu: {{ .Values.replicationJob.resources.limits.cpu }}
             env:
               - name: POSTGRES_HOST
                 value: {{ .Release.Name }}-db
@@ -28,8 +35,6 @@ spec:
                 value: {{ quote .Values.db.env.POSTGRES_PASSWORD }}
               - name: POSTGRES_USER
                 value: {{ .Values.db.env.POSTGRES_USER }}
-              - name: CLEAN_BACKUPS
-                value: {{ quote .Values.osmmosis.env.CLEAN_BACKUPS }}
               {{- if .Values.backupStorage.aws.enabled }}
               - name: STORAGE
                 value: S3

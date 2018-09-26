@@ -22,13 +22,13 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./postgres-data:/var/lib/postgresql/data
+      - dbdata:/var/lib/postgresql/data
     env_file: 
       - ./.env
     networks: 
       - db_network
-  replication:
-    image: openseed-replication:v1
+  osmosis:
+    image: openseed-osmosis:v1
     build: 
       context: ./osmosis
       dockerfile: Dockerfile
@@ -37,9 +37,9 @@ services:
       - db
     command: >
       /bin/bash -c "
-      echo Sleep the replication for a while!;
+      echo Sleep the osmosis for a while!;
       sleep 40;
-      echo Creating the replication!;
+      echo Creating the osmosis!;
       ./start.sh"
     env_file: 
       - ./.env
@@ -59,6 +59,8 @@ services:
       ./start.sh"
     env_file: 
       - ./.env
+    networks: 
+      - db_network
   id-editor:
     image: osmseed-id-editor:v1
     build: 
@@ -67,12 +69,52 @@ services:
     expose:
       - "8080"
     depends_on:
-      - web
       - db
+      - web
     env_file: 
       - ./.env
     networks: 
       - web_network
+      - db_network
+  replication-job:
+    image: osmseed-replication-job:v1
+    build:
+      context: ./replication-job
+      dockerfile: Dockerfile
+    volumes:
+      - ./replication-files:/app/data
+    depends_on:
+      - web
+      - db
+    networks: 
+      - db_network
+      - web_network
+    command: >
+      /bin/bash -c "
+      echo Sleep the replication-job for a while!;
+      sleep 40;
+      echo Creating the replication-job!;
+      ./start.sh"
+    env_file:
+      - ./.env
+  populate-apidb:
+    image: osmseed-populate-apidb:v1
+    build:
+      context: ./populate-apidb
+      dockerfile: Dockerfile
+    volumes:
+      - ./replication-files:/app/data
+    depends_on:
+      - web
+      - db
+    command: >
+      /bin/bash -c "
+      echo Sleep for a while populate-apidb!;
+      sleep 20;
+      echo Starting populate-apidb!;
+      ./start.sh"
+    env_file:
+      - ./.env
   nginx: 
     build:
       context: ./nginx
@@ -81,7 +123,7 @@ services:
      - ./nginx/nginx.conf.template:/etc/nginx/conf.d/nginx.conf.template
     command: >
       /bin/bash -c "
-      envsubst '$${SERVER_PORT} $${SERVER_URL}' < /etc/nginx/conf.d/nginx.conf.template > /etc/nginx/conf.d/default.conf 
+      envsubst '$${SERVER_PORT} $${SERVER_URL}' < /etc/nginx/conf.d/nginx.conf.template > /etc/nginx/nginx.conf \
       && nginx -g 'daemon off;'"
     env_file: 
       - ./.env
@@ -103,3 +145,5 @@ networks:
     driver: bridge
   db_network: 
     driver: bridge
+volumes:
+  dbdata:
