@@ -24,6 +24,10 @@ http {
             return 301 /edit/img/$1;
         }
 
+        location ~ ^/locales/(.*) {
+            return 301 /edit/locales/$1;
+        }
+
         location /edit {
             proxy_pass         http://id-editor:80/;
             proxy_redirect     off;
