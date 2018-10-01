@@ -17,6 +17,11 @@ http {
 
             rewrite /iD.js /edit/iD.js;
             rewrite /iD.css /edit/iD.css;
+            rewrite /land.html /edit/land.html;
+        }
+
+        location ~ ^/img/(.*) {
+            return 301 /edit/img/$1;
         }
 
         location /edit {
