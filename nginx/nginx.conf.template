@@ -17,8 +17,8 @@ http {
         server_name ${SERVER_URL};
 
 
-        ${NO_SSL}ssl_certificate /etc/nginx/ssl/fullchain.pem;
-        ${NO_SSL}ssl_certificate_key /etc/nginx/ssl/privkey.pem;
+        ${NO_SSL}ssl_certificate /etc/nginx/ssl/live/${SERVER_URL}/fullchain.pem;
+        ${NO_SSL}ssl_certificate_key /etc/nginx/ssl/live/${SERVER_URL}/privkey.pem;
 
         location / {
             proxy_pass         http://web:80;
