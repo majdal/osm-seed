@@ -29,6 +29,8 @@ http {
             proxy_set_header   X-Forwarded-Host $server_name;
 
             rewrite /iD.js /edit/iD.js;
+            rewrite /iD.js.map /edit/iD.js.map;
+            rewrite /iD.min.js /edit/iD.min.js;
             rewrite /iD.css /edit/iD.css;
             rewrite /land.html /edit/land.html;
         }
@@ -40,6 +42,16 @@ http {
         location ~ ^/locales/(.*) {
             return 301 /edit/locales/$1;
         }
+
+        location ~ ^/mapillary-js/(.*) {
+            return 301 /edit/mapillary-js/$1;
+        }
+
+        location ~ ^/pannellum-streetside/(.*) {
+            return 301 /edit/pannellum-streetside/$1;
+        }
+
+
 
         location /edit {
             proxy_pass         http://id-editor:80/;
